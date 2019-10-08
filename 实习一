@@ -1,0 +1,55 @@
+#-*-coding:utf-8-*-
+import  boto3
+import tkinter
+client=boto3.client('sqs')
+if client:
+    print("successfully connect")
+
+#发送消息
+def Send():
+    send_mess=var1.get()
+    if str(send_mess):
+        respone=client.send_message(QueueUrl='https://sqs.us-east-1.amazonaws.com/182063390807/Jigxiao',MessageBody=send_mess)
+        var1.set("")
+        return  respone['ResponseMetadata']['HTTPStatusCode']
+
+    else:
+        print("没有内容")
+
+
+#接受消息
+def Recive():
+    recive=client.receive_message(QueueUrl='https://sqs.us-east-1.amazonaws.com/182063390807/Jigxiao',  MessageAttributeNames=[
+        'All',
+    ],)
+    var2.set(recive['Messages'][0]['Body'])
+    print('recive:   ', recive['ResponseMetadata']['HTTPHeaders']['date'], "        ", recive['Messages'][0]['Body'])
+
+
+#界面化
+import tkinter
+root=tkinter.Tk() #生成root主窗口
+
+root.geometry('300x400')
+label=tkinter.Label(root,text='AWS') #生成标签
+label.pack()        #将标签添加到主窗口
+send_message_lab=tkinter.Label(root,text='Sen_Message') #生成标签
+send_message_lab.pack()
+
+var1=tkinter.StringVar()
+send_message=tkinter. Entry(root,textvariable=var1) #发送消息  #设置输入框对应的文本变量为var
+send_message.pack()         #将button1添加到root主窗口
+button1=tkinter.Button(root,text='Send', command=lambda :Send())
+button1.pack()
+
+recive_message_lab=tkinter.Label(root,text='Recive_Message') #生成标签
+recive_message_lab.pack()
+
+
+var2=tkinter.StringVar()
+recive_message_lab=tkinter. Entry(root,textvariable=var2) #生成button1
+recive_message_lab.pack()         #将button1添加到root主窗口
+
+button2=tkinter.Button(root,text='Recive', command=lambda :Recive())
+button2.pack()
+root.mainloop()             #进入消息循环（必需组件）
